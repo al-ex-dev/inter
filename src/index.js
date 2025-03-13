@@ -81,9 +81,6 @@ const start = async () => {
                     const isCommand = !plugin.disable && plugin.comand ? (Array.isArray(plugin.comand) ? plugin.comand.includes(m.command) : plugin.comand.test(m.body)) : undefined
 
                     if (plugin.exec && typeof plugin.exec === 'function' && isCommand) {
-                        if (plugin.isOwner && !m.isOwner) continue
-                        if (!m.isAdmin && !m.isOwner) continue
-
                         await plugin.exec.call(plugin, m, args).catch(error => {
                             sock.sendMessage(m.from, { text: `Error al ejecutar el plugin: ${error}` })
                             console.error(error)

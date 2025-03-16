@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const groupJIDs = [ "std",
+const allowedGroups = [ "std",
     "7da",
     "lam",
     "gar",

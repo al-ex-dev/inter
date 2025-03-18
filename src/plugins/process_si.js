@@ -30,7 +30,7 @@ export default {
 
         if (responses[number]) return sock.sendMessage(m.from, { text: 'Ya has respondido.' })
 
-        responses[number] = { response: 'si', address: null }
+        responses[number] = { response: 'si', address: null, timestamp: Date.now() }
 
         try {
             await fs.promises.writeFile(respPath, JSON.stringify(responses, null, 2))
@@ -38,12 +38,21 @@ export default {
             return sock.sendMessage(m.from, { text: 'Error al guardar respuesta.' })
         }
         await sock.sendMessage(m.from, { text: 'Por favor proporciona tu ubicación.' })
-        const addressResponse = async (addressMsg) => {
-            const addr = addressMsg.messages?.[0]
-            if (addr?.key.remoteJid !== m.from || !addr.message?.conversation) return
 
-            responses[number].address = addr.message.conversation
-            
+        const timeout = setTimeout(async () => {
+            if (responses[number] && !responses[number].address) {
+                await fs.promises.writeFile(respPath, JSON.stringify(responses, null, 2))
+                await sock.sendMessage(m.from, { text: 'Tiempo de respuesta agotado.' })
+            }
+        }, 2 * 60 * 60 * 1000) // 2 horas
+
+        sock.ev.on('messages.upsert', async function addressResponse(addressMsg) {
+            const addr = addressMsg.messages?.[0]
+            const conversation = addr?.message?.conversation ?? addr?.message?.extendedTextMessage?.text ?? addr?.message?.text
+            if (addr?.key.remoteJid !== m.from || !conversation) return
+
+            responses[number].address = conversation
+
             try {
                 await fs.promises.writeFile(respPath, JSON.stringify(responses, null, 2))
             } catch (e) {
@@ -60,11 +69,11 @@ export default {
             const groupName = Object.keys(data).find(g => data[g].some(num => num.replace(/\D/g, '') === number))
             if (groupName) {
                 const groupJID = groupJIDs[groupName]
-                if (groupJID) await sock.sendMessage(groupJID, { text: `📦 +${number} recibirá el paquete. Dirección: ${addr.message.conversation}` })
+                if (groupJID) await sock.sendMessage(groupJID, { text: `📦 +${number} recibirá el paquete.\nDirección: ${conversation}` })
             }
             await sock.sendMessage(m.from, { text: 'Gracias por su respuesta.' })
+            clearTimeout(timeout)
             sock.ev.off('messages.upsert', addressResponse)
-        }
-        sock.ev.on('messages.upsert', addressResponse)
+        })
     }
 }

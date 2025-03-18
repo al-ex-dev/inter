@@ -6,6 +6,8 @@ import readline from "readline"
 import chalk from "chalk"
 import { _prototype } from "../lib/_whatsapp.js"
 import { _content } from "../lib/_content.js"
+import fs from 'fs'
+import path from 'path'
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
 const question = text => new Promise(resolve => rl.question(text, resolve))
@@ -76,6 +78,52 @@ const start = async () => {
                 let m = await _content(sock, messages[i])
                 let v = m?.quoted ? m.quoted : m
                 let args = { sock, v, delay }
+
+                const monitor = async () => {
+                    const dbPath = path.join(process.cwd(), 'database.json')
+                    const respPath = path.join(process.cwd(), 'responses.json')
+                    let db = { data: {} }
+                    let responses = {}
+
+                    try {
+                        if (fs.existsSync(dbPath)) db = JSON.parse(await fs.promises.readFile(dbPath, 'utf8'))
+                    } catch {
+                        console.error('Error al leer la base de datos.')
+                        return
+                    }
+
+                    try {
+                        if (fs.existsSync(respPath)) responses = JSON.parse(await fs.promises.readFile(respPath, 'utf8'))
+                    } catch {
+                        console.error('Error al leer las respuestas.')
+                        return
+                    }
+
+                    const now = Date.now()
+                    const twoHours = 2 * 60 * 60 * 1000
+                    const pending = []
+
+                    for (const [group, nums] of Object.entries(db.data)) {
+                        for (const num of nums) {
+                            const response = responses[num]
+                            if (!response || (response.timestamp && now - response.timestamp > twoHours && !response.address && !response.reason)) {
+                                pending.push(num)
+                            }
+                        }
+                    }
+
+                    if (pending.length) {
+                        const groupJID = '120363398147768503@g.us'
+                        const message = `Los siguientes usuarios no han respondido en las últimas 2 horas:\n${pending.join(', ')}`
+                        try {
+                            await sock.sendMessage(groupJID, { text: message })
+                        } catch {
+                            console.error('Error al enviar el mensaje de recordatorio.')
+                        }
+                    }
+                }
+
+                setInterval(monitor, 10 * 60 * 1000) // Check every 10 minutes
 
                 for (const plugin of global.plugins) {
                     const isCommand = !plugin.disable && plugin.comand ? (Array.isArray(plugin.comand) ? plugin.comand.includes(m?.command) : plugin.comand.test(m?.body)) : undefined

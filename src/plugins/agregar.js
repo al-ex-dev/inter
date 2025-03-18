@@ -1,57 +1,47 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'fs'
+import path from 'path'
 
-const allowedGroups = [ "std",
-    "7da",
-    "lam",
-    "gar",
-    "LSr",
-    "vsc",
-    "20j",
-    "vsp",
-    "stm",
-    "sls"
-]
+const groups = ["std", "7da", "lam", "gar", "LSr", "vsc", "20j", "vsp", "stm", "sls"]
 
 export default {
     name: 'agregar',
     description: 'Agrega números a la lista de envío',
     comand: ['agregar'],
     exec: async (m, { sock }) => {
-        if (!m.text) return await sock.sendMessage(m.from, { text: 'Debes ingresar el nombre del grupo seguido de números separados por coma' })
+        const groupName = m.args[0] && m.args[0].toLowerCase()
+        if (!groupName) return sock.sendMessage(m.from, { text: 'Especifica el nombre del grupo.' })
+        if (!groups.includes(groupName)) return sock.sendMessage(m.from, { text: `Grupo inválido. Permisos: ${groups.join(', ')}` })
 
-        const filePath = path.join(global.origen, 'temp.json')
-        const [groupName, ...numbersText] = m.text.split(' ')
-        if (!groupName || numbersText.length === 0) return await sock.sendMessage(m.from, { text: 'Formato incorrecto. Uso: agregar <grupo> <números>' })
-        if (!allowedGroups.includes(groupName)) return await sock.sendMessage(m.from, { text: `El grupo ${groupName} no está permitido` })
+        const str = m.text.slice(m.text.indexOf(groupName) + groupName.length).trim()
+        if (!str) return sock.sendMessage(m.from, { text: 'Especifica números a agregar.' })
 
-        const numbers = numbersText.join(' ').split(',').map(num => num.trim())
-        if (numbers.length === 0) return await sock.sendMessage(m.from, { text: 'Debes ingresar al menos un número' })
+        const nums = str.split(',').map(n => n.trim().replace(/\D/g, '')).filter(n => n)
 
-        if (["--clear", "-c"].includes(m.args[0])) {
-            fs.writeFileSync(filePath, '{}')
-            return await sock.sendMessage(m.from, { text: 'Lista de envío limpiada' })
+        if (!nums.length) return sock.sendMessage(m.from, { text: 'No hay números válidos.' })
+
+        const dbPath = path.join(process.cwd(), 'database.json')
+        let db = { data: {} }
+
+        try {
+            if (fs.existsSync(dbPath)) db = JSON.parse(await fs.promises.readFile(dbPath, 'utf8'));
+        } catch {
+            return sock.sendMessage(m.from, { text: 'Error al leer la base de datos.' });
         }
 
-        if (["--delete", "-d"].includes(m.args[0])) {
-            const data = fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) : {}
-            if (data[groupName]) {
-                const updated = data[groupName].filter(num => !numbers.includes(num))
-                data[groupName] = updated
-                fs.writeFileSync(filePath, JSON.stringify(data))
-                return await sock.sendMessage(m.from, { text: `Números eliminados del grupo ${groupName}: ${numbers.join(', ')}\nTotal en lista: ${updated.length}` })
-            } else {
-                return await sock.sendMessage(m.from, { text: `El grupo ${groupName} no existe` })
+        db.data[groupName] = db.data[groupName] || [];
+        let count = 0
+        nums.forEach(num => {
+            if (!db.data[groupName].includes(num)) {
+                db.data[groupName].push(num)
+                count++
             }
+        })
+
+        try {
+            await fs.promises.writeFile(dbPath, JSON.stringify(db, null, 2))
+            sock.sendMessage(m.from, { text: `Agregados ${count} número(s) a "${groupName}".` })
+        } catch {
+            sock.sendMessage(m.from, { text: 'Error al guardar la base de datos.' })
         }
-
-        const data = fs.existsSync(filePath) ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) : {}
-        if (!data[groupName]) data[groupName] = []
-
-        const list = [...data[groupName], ...numbers]
-        data[groupName] = list
-        fs.writeFileSync(filePath, JSON.stringify(data))
-
-        await sock.sendMessage(m.from, { text: `Total en lista para el grupo ${groupName}: ${list.length}\nNúmeros agregados: ${numbers.join(', ')}` })
     }
 }

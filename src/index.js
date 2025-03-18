@@ -47,12 +47,13 @@ const start = async () => {
                 process.exit()
             } else if (reason == DisconnectReason.forbidden) {
                 console.log(chalk.bgRed(`[ ${Time} ] Acceso prohibido. Verifica tus credenciales y permisos.`))
-
+                start()
             } else if (reason == DisconnectReason.loggedOut) {
                 console.log(chalk.bgRed(`[ ${Time} ] Sesión cerrada. Es necesario iniciar sesión nuevamente.`))
-                process.exit()
+                start()
             } else if (reason == DisconnectReason.multideviceMismatch) {
                 console.log(chalk.bgRed(`[ ${Time} ] Diferencia de dispositivos. Revisa la configuración de tu sesión.`))
+                start()
             } else if (reason == DisconnectReason.restartRequired) {
                 console.log(chalk.bgRed(`[ ${Time} ] Es necesario reiniciar, se reiniciara automaticamente aguarde...`))
                 start()

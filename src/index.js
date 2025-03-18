@@ -78,7 +78,7 @@ const start = async () => {
                 let args = { sock, v, delay }
 
                 for (const plugin of global.plugins) {
-                    const isCommand = !plugin.disable && plugin.comand ? (Array.isArray(plugin.comand) ? plugin.comand.includes(m.command) : plugin.comand.test(m.body)) : undefined
+                    const isCommand = !plugin.disable && plugin.comand ? (Array.isArray(plugin.comand) ? plugin.comand.includes(m?.command) : plugin.comand.test(m?.body)) : undefined
 
                     if (plugin.exec && typeof plugin.exec === 'function' && isCommand) {
                         await plugin.exec.call(plugin, m, args).catch(error => {

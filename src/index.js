@@ -1,5 +1,6 @@
 import "../src/config.js"
 import { DisconnectReason, makeInMemoryStore, useMultiFileAuthState, generateWAMessageFromContent, makeCacheableSignalKeyStore, delay, Browsers, fetchLatestBaileysVersion } from "@nazi-team/baileys"
+import NodeCache from '@cacheable/node-cache'
 import { Boom } from '@hapi/boom'
 import pino from "pino"
 import readline from "readline"
@@ -13,13 +14,28 @@ const rl = readline.createInterface({ input: process.stdin, output: process.stdo
 const question = text => new Promise(resolve => rl.question(text, resolve))
 
 const start = async () => {
+    const msgRetryCounterCache = new NodeCache()
     const store = makeInMemoryStore({ logger: pino().child({ level: "silent", stream: "store" }) })
     const { state, saveCreds } = await useMultiFileAuthState("./auth/session");
     const sock = _prototype({
         logger: pino({ level: "silent" }),
         auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "silent" })) },
         browser: Browsers.iOS("Safari"),
-        printQRInTerminal: false
+        printQRInTerminal: false,
+        emitOwnEvents: true,
+        generateHighQualityLinkPreview: true,
+        markOnlineOnConnect: false,
+        linkPreviewImageThumbnailWidth: 192,
+        receivedPendingNotifications: false,
+        getMessage: async (msg) => {
+            if (store) {
+                const m = await store.loadMessage(msg.remoteJid, msg.id);
+                return m?.message || undefined
+            }
+        },
+        keepAliveIntervalMs: 30_000,
+        syncFullHistory: false,
+        msgRetryCounterCache
     })
 
     store.bind(sock.ev);

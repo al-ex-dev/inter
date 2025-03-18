@@ -3,4 +3,5 @@ temp
 node_modules
 package-lock.json
 .vs
-src/temp.json
+database.json
+responses.json

@@ -10,8 +10,7 @@ export default {
         const dbPath = path.join(process.cwd(), 'database.json')
         let db = { data: {} }
         try {
-            if (fs.existsSync(dbPath))
-                db = JSON.parse(await fs.promises.readFile(dbPath, 'utf8'))
+            if (fs.existsSync(dbPath)) db = JSON.parse(await fs.promises.readFile(dbPath, 'utf8'))
         } catch {
             return sock.sendMessage(m.from, { text: 'Error al leer la base de datos.' })
         }
@@ -40,7 +39,8 @@ export default {
             } catch {
                 f++
             }
+            await delay(7000)
         }
-        sock.sendMessage(m.from, { text: `Enviado a ${s} usuario(s)${f ? `, fallos en ${f}` : ''}.` })
+        await sock.sendMessage(m.from, { text: `Enviado a ${s} usuario(s)${f ? `,\nSin Whatsapp: ${f}` : ''}.` })
     }
 }

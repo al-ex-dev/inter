@@ -16,7 +16,7 @@ const question = text => new Promise(resolve => rl.question(text, resolve))
 const start = async () => {
     const msgRetryCounterCache = new NodeCache()
     const store = makeInMemoryStore({ logger: pino().child({ level: "silent", stream: "store" }) })
-    const { state, saveCreds } = await useMultiFileAuthState("./auth/session");
+    const { state, saveCreds } = await useMultiFileAuthState("./auth/session")
     const sock = _prototype({
         logger: pino({ level: "silent" }),
         auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "silent" })) },
@@ -29,7 +29,7 @@ const start = async () => {
         receivedPendingNotifications: false,
         getMessage: async (msg) => {
             if (store) {
-                const m = await store.loadMessage(msg.remoteJid, msg.id);
+                const m = await store.loadMessage(msg.remoteJid, msg.id)
                 return m?.message || undefined
             }
         },

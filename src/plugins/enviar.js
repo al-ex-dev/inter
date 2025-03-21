@@ -37,9 +37,16 @@ export default {
                 continue
             }
             try {
+                await sock.presenceSubscribe(jid)
+                await delay(500)
+
+                await sock.sendPresenceUpdate('composing', jid)
+                await delay(2000)
+
+                await sock.sendPresenceUpdate('paused', jid)
                 await sock.sendMessage(jid, {
                     image: { url: "./inter.jpg" },
-                    caption: config.bot.message,
+                    caption: config.bot.message.replace("@barrio", grp[barrio]),
                     footer: _config.bot.credits,
                     buttons: [
                         { buttonId: '.process_si', buttonText: { displayText: 'Sí, recibiré el paquete' }, type: 1 },
@@ -52,7 +59,7 @@ export default {
             } catch {
                 f++
             }
-            await delay(7000)
+            await delay(5000)
         }
         await sock.sendMessage(m.from, { text: `📊 Estadísticas\nTotal en lista: ${nums.length}\nEnviado a ${s} usuario(s)${f ? `\nSin Whatsapp: ${f}\n📝 Números inválidos: ${invalid.join(', ')}` : ''}.` })
     }

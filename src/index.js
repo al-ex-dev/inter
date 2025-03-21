@@ -7,8 +7,6 @@ import readline from "readline"
 import chalk from "chalk"
 import { _prototype } from "../lib/_whatsapp.js"
 import { _content } from "../lib/_content.js"
-import fs from 'fs'
-import path from 'path'
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
 const question = text => new Promise(resolve => rl.question(text, resolve))
@@ -20,25 +18,13 @@ const start = async () => {
     const sock = _prototype({
         logger: pino({ level: "silent" }),
         auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({ level: "silent" })) },
-        browser: Browsers.ubuntu("Chrome"),
+        browser: Browsers.iOS("Safari"),
         printQRInTerminal: false,
-        emitOwnEvents: true,
-        generateHighQualityLinkPreview: true,
-        markOnlineOnConnect: false,
-        linkPreviewImageThumbnailWidth: 192,
-        receivedPendingNotifications: false,
-        getMessage: async (msg) => {
-            if (store) {
-                const m = await store.loadMessage(msg.remoteJid, msg.id)
-                return m?.message || undefined
-            }
-        },
-        keepAliveIntervalMs: 30_000,
         syncFullHistory: false,
         msgRetryCounterCache
     })
 
-    store.bind(sock.ev);
+    store.bind(sock.ev)
     sock.ev.on("creds.update", saveCreds)
     if (!sock.authState.creds.registered) {
         console.log(`Emparejamiento con este código: ${await sock.requestPairingCode(await question("Ingresa tu número de WhatsApp activo: "), "NAZITEAM")}`)

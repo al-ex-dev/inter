@@ -60,7 +60,7 @@ export default {
                 await sock.sendMessage(jid, {
                     image: { url: "./inter.jpg" },
                     caption: config.bot.message.replace("@barrio", barrios[grp] || grp),
-                    footer: config.bot.credits,
+                    footer: _config.bot.credits,
                     buttons: [
                         { buttonId: '.process_si', buttonText: { displayText: 'Sí, recibiré el paquete' }, type: 1 },
                         { buttonId: '.process_no', buttonText: { displayText: 'No, no recibiré el paquete' }, type: 1 }

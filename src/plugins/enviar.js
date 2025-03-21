@@ -10,7 +10,20 @@ export default {
         const dbPath = path.join(process.cwd(), 'database.json')
         const configPath = path.join(process.cwd(), 'config.json')
         let db = { data: {} }
-        let config = { bot: { message: "¿Recibirá el paquete?" } }
+        let config = { bot: { message: "¿Recibirá el paquete?", credits: "Bot System" } }
+
+        const barrios = {
+            "stm": "Santa Maria",
+            "sls": "San Luis",
+            "20j": "20 de julio",
+            "7da": "7 de abril",
+            "gar": "Gardenias",
+            "lsr": "La sierrita",
+            "lam": "Las Américas",
+            "std": "Santo Domingo",
+            "vsc": "Villa San Carlos",
+            "vsp": "Villa San Pedro"
+        }
 
         try {
             if (fs.existsSync(dbPath)) db = JSON.parse(await fs.promises.readFile(dbPath, 'utf8'))
@@ -46,8 +59,8 @@ export default {
                 await sock.sendPresenceUpdate('paused', jid)
                 await sock.sendMessage(jid, {
                     image: { url: "./inter.jpg" },
-                    caption: config.bot.message.replace("@barrio", grp[barrio]),
-                    footer: _config.bot.credits,
+                    caption: config.bot.message.replace("@barrio", barrios[grp] || grp),
+                    footer: config.bot.credits,
                     buttons: [
                         { buttonId: '.process_si', buttonText: { displayText: 'Sí, recibiré el paquete' }, type: 1 },
                         { buttonId: '.process_no', buttonText: { displayText: 'No, no recibiré el paquete' }, type: 1 }

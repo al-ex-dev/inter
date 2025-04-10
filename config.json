@@ -1,5 +1,5 @@
 {
   "bot": {
-    "message": "desea recibir tal paquete?"
+    "message": "enviando a @direccion para el usuario @nombre por el guía de número @guia con el valor de @valor para la persona @nombre ◇Mensaje prueba◇"
   }
 }

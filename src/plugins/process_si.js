@@ -66,7 +66,7 @@ export default {
             } catch (e) {
                 console.error('Error al leer base de datos')
             }
-            const groupName = Object.keys(data).find(g => data[g].some(num => num.replace(/\D/g, '') === number))
+            const groupName = Object.keys(data).find(g => Object.keys(data[g]).some(num => num === number))
             if (groupName) {
                 const groupJID = groupJIDs[groupName]
                 if (groupJID) await sock.sendMessage(groupJID, { text: `📦 +${number} recibirá el paquete.\nDirección: ${conversation}` })

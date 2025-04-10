@@ -58,7 +58,7 @@ export default {
                     .replace('@direccion', u.direccion || 'N/A')
                     .replace('@ciudad', u.ciudad || 'N/A')
                     .replace('@nombre', u.nombre || 'N/A')
-                    .replace('@barrio', barrios[grp] || grp)
+                    .replace('@barrio', barrios[q] || q)
                 await sock.sendMessage(jid, {
                     image: { url: './inter.jpg' },
                     caption: msg,

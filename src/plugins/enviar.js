@@ -10,6 +10,18 @@ export default {
         const cfgP = path.join(process.cwd(), 'config.json')
         let db = { data: {} }
         let cfg = { bot: { message: '¿Recibirá el paquete?' } }
+        const barrios = {
+            "stm": "Santa Maria",
+            "sls": "San Luis",
+            "20j": "20 de julio",
+            "7da": "7 de abril",
+            "gar": "Gardenias",
+            "lsr": "La sierrita",
+            "lam": "Las Américas",
+            "std": "Santo Domingo",
+            "vsc": "Villa San Carlos",
+            "vsp": "Villa San Pedro"
+        }
         try {
             if (fs.existsSync(dbP)) db = JSON.parse(await fs.promises.readFile(dbP, 'utf8'))
         } catch {
@@ -46,6 +58,7 @@ export default {
                     .replace('@direccion', u.direccion || 'N/A')
                     .replace('@ciudad', u.ciudad || 'N/A')
                     .replace('@nombre', u.nombre || 'N/A')
+                    .replace('@barrio', barrios[grp] || grp)
                 await sock.sendMessage(jid, {
                     image: { url: './inter.jpg' },
                     caption: msg,

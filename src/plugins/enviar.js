@@ -9,8 +9,8 @@ export default {
         const dbP = path.join(process.cwd(), 'database.json')
         const cfgP = path.join(process.cwd(), 'config.json')
         let db = { data: {} }
-        let cfg = { bot: { message: '¿Recibirá el paquete?' } }
-        const barrios = {
+
+        let barrios = {
             "stm": "Santa Maria",
             "sls": "San Luis",
             "20j": "20 de julio",
@@ -22,6 +22,7 @@ export default {
             "vsc": "Villa San Carlos",
             "vsp": "Villa San Pedro"
         }
+        let cfg = { bot: { message: '¿Recibirá el paquete?' } }
         try {
             if (fs.existsSync(dbP)) db = JSON.parse(await fs.promises.readFile(dbP, 'utf8'))
         } catch {
@@ -58,10 +59,9 @@ export default {
                     .replace('@direccion', u.direccion || 'N/A')
                     .replace('@ciudad', u.ciudad || 'N/A')
                     .replace('@nombre', u.nombre || 'N/A')
-                    .replace('@barrio', barrios[q] || q)
                 await sock.sendMessage(jid, {
                     image: { url: './inter.jpg' },
-                    caption: msg,
+                    caption: msg.replace("@barrio", barrios[g] || g),
                     footer: cfg.bot.credits,
                     buttons: [
                         { buttonId: '.process_si', buttonText: { displayText: 'Sí, recibiré el paquete' }, type: 1 },

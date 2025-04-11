@@ -20,7 +20,8 @@ export default {
             "lam": "Las Américas",
             "std": "Santo Domingo",
             "vsc": "Villa San Carlos",
-            "vsp": "Villa San Pedro"
+            "vsp": "Villa San Pedro",
+            "crz": "Carrizal"
         }
         let cfg = { bot: { message: '¿Recibirá el paquete?' } }
         try {

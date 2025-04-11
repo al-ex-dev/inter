@@ -67,10 +67,9 @@ export default {
             const dbPath = path.join(process.cwd(), 'database.json')
             let data = fs.existsSync(dbPath) ? JSON.parse(await fs.promises.readFile(dbPath, 'utf8')).data || {} : {}
 
-            const groupName = Object.keys(data).find(g => Object.keys(data[g]).some(num => num === number))
-            const groupJID = groupJIDs[groupName]
-            if (groupName && groupJID) {
-                await sock.sendMessage(groupJID, { text: `📦 +${number} no recibirá el paquete.\nMotivo: ${reasons[selected]}` })
+            const groupName = Object.keys(data).find(g => data[g].some(num => num.replace(/\D/g, '') === number))
+            if (groupName && groupJIDs[groupName]) {
+                await sock.sendMessage(groupJIDs[groupName], { text: `📦 +${number} no recibirá el paquete.\nMotivo: ${reasons[selected]}` })
             }
 
             await sock.sendMessage(m.from, { text: 'Gracias por su respuesta.' })

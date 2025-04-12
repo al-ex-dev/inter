@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-const groups = ['std', '7da', 'lam', 'gar', 'LSr', 'vsc', '20j', 'vsp', 'stm', 'sls']
+const groups = ['std', '7da', 'lam', 'gar', 'lsr', 'vsc', '20j', 'vsp', 'stm', 'sls']
 
 export default {
     name: 'agregar',
